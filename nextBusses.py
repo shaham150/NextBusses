@@ -2,11 +2,18 @@
 
 # from urllib.request import urlopen
 import requests
+import json
+
+def alertServerError(errCode):
+    print(f"Error! Code: {errCode}")
+
 
 # Import data for stored routes:
 routes = []
+time_arrival = ""  # Stored for later access
 
 with open("routes.csv") as f:
+    f.readline()  # Skip first line
     for line in f:
         routes.append(line.split(";"))
 
@@ -31,7 +38,7 @@ for route in routes:
     headers = {
         "Content-Type": "application/json",
         "X-Goog-Api-Key": api_key,
-        "X-Goog-FieldMask": "routes.distanceMeters,routes.duration,routes.polyline.encodedPolyline"
+        "X-Goog-FieldMask": "routes.legs"
     }
 
     body = {
@@ -51,13 +58,22 @@ for route in routes:
                 }
             }
         },
-        "travelMode": "DRIVE"
+        "travelMode": "TRANSIT"
     }
 
     response = requests.post(url, headers=headers, json=body)
+    
+    if response.status_code != 200:
+        alertServerError(response.status_code)
+        break
 
-    print("Status code:", response.status_code)
-    print("Response text:", response.text)
+    # print("Status code:", response.status_code)
+    # print("Response text:", response.text)
 
-    print(response.json())
+    data = response.json()["routes"][0]["legs"]
+    
+    time_depart = data[0]["steps"][0]["transitDetails"]["localizedValues"]["departureTime"]["time"]["text"]
+    time_arrival = data[0]["steps"][0]["transitDetails"]["localizedValues"]["arrivalTime"]["time"]["text"]
 
+    print(f"Route #{route_num} ({title} ) - Next at {time_depart}")
+###
