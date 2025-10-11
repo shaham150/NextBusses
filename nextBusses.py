@@ -155,6 +155,7 @@ with open("api_key.txt") as f:
 main = tk.Tk()
 main.title("Next Bus")
 main.minsize(900, 700)
+main.resizable(False, True)
 main_bg_color = "#9BC1CF"
 main.configure(bg=main_bg_color)
 
