@@ -37,7 +37,6 @@ def updateRouteInfo(routes, old_frame=None):
 
     # Request data for each route:
     for route in routes:
-        print(route, len(route))
         route_num = route[0]
         title = route[1]
         origin_lat = float(route[2])
@@ -78,19 +77,15 @@ def updateRouteInfo(routes, old_frame=None):
         if response.status_code != 200:
             alertServerError(response.status_code)
             break
-
-        # print("Status code:", response.status_code)
-        # print("Response text:", response.text)
-
-        data = response.json()["routes"][0]
         
+        data = response.json()["routes"][0]
+
         # Only look at public transit departure/arrival times:
         time_depart = ""
         time_arrival = ""
 
         steps = data["legs"][0]["steps"]
         for step in steps:
-            print("checking step")
             if step["travelMode"] == "TRANSIT":
                 time_depart = step["transitDetails"]["localizedValues"]["departureTime"]["time"]["text"]
                 time_arrival = step["transitDetails"]["localizedValues"]["arrivalTime"]["time"]["text"]
@@ -105,19 +100,23 @@ def updateRouteInfo(routes, old_frame=None):
 
         print(f"Route #{route_num} ({title} ) - Next at {time_depart}")
 
-        bus_times_frame = ttk.Frame(info_frame, style="Bus.TFrame")
+        bus_times_frame = ttk.Frame(info_frame, style="Bus.TFrame", width=800, height=120)
+        bus_times_frame.grid_propagate(0)  # Force size of each bus-info frame
+        bus_times_frame.grid_columnconfigure(0, weight=0)
+        bus_times_frame.grid_columnconfigure(1, weight=1)
+        bus_times_frame.grid_columnconfigure(2, weight=0)
 
         route_label = ttk.Label(bus_times_frame, text=f"Route {route_num}", style="Bus.TLabel")
-        route_label.grid(row=0, column=0)
+        route_label.grid(row=0, column=0, sticky="w", padx=10)
 
         # Place space between sets of data:
-        ttk.Label(bus_times_frame, text=" ", style="Bus.TLabel").grid(row=0, column=1, padx=150)
+        # ttk.Label(bus_times_frame, text=" ", style="Bus.TLabel").grid(row=0, column=1, padx=150)
 
         route_time = ttk.Label(bus_times_frame, text=f"{time_depart}", style="Bus.TLabel")
-        route_time.grid(row=0, column=4)
+        route_time.grid(row=0, column=2, padx=40, sticky="e")
 
         route_desc = ttk.Label(bus_times_frame, text=f"{title}", style="Small.Bus.TLabel")
-        route_desc.grid(row=1, column=0)
+        route_desc.grid(row=1, column=0, sticky="w", padx=10)
 
         bus_times_frame.grid(row=row_num, pady=20)  # Add new frame w/route info
 
@@ -161,7 +160,7 @@ with open("api_key.txt") as f:
 
 main = tk.Tk()
 main.title("Next Bus")
-main.minsize(900, 700)
+main.minsize(1000, 800)
 main.resizable(False, True)
 main_bg_color = "#9BC1CF"
 main.configure(bg=main_bg_color)
@@ -171,10 +170,10 @@ style = ttk.Style()
 
 busInfo_bg = "#012A36"
 
-style.configure(".", background=main_bg_color, justify="center")
+style.configure(".", background=main_bg_color)
 style.configure("TLabel", font="Helvetica, 16")
 style.configure("Bus.TFrame", background=busInfo_bg)
-style.configure("Bus.TLabel", font="Helvetica, 24", foreground="#fff", background=busInfo_bg, padding=4)
+style.configure("Bus.TLabel", font="Helvetica, 24", foreground="#fff", background=busInfo_bg)
 style.configure("Small.Bus.TLabel", font="Helvetica, 16")
 
 style.configure("nonBus.TLabel", font="Helvetica 16")
