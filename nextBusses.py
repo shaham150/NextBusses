@@ -82,14 +82,14 @@ def updateRouteInfo(routes, old_frame=None):
         # print("Status code:", response.status_code)
         # print("Response text:", response.text)
 
-        data = response.json()["routes"][0]["legs"][0]["steps"]
-
-        # print("JSON DUMP\n\n", json.dumps(data, indent=4))
-
+        data = response.json()["routes"][0]
+        
         # Only look at public transit departure/arrival times:
         time_depart = ""
         time_arrival = ""
-        for step in data:
+
+        steps = data["legs"][0]["steps"]
+        for step in steps:
             print("checking step")
             if step["travelMode"] == "TRANSIT":
                 time_depart = step["transitDetails"]["localizedValues"]["departureTime"]["time"]["text"]
@@ -98,6 +98,10 @@ def updateRouteInfo(routes, old_frame=None):
         ###
 
         ########
+
+        ######
+        #   Organize+output bus arrival info:
+        ######        
 
         print(f"Route #{route_num} ({title} ) - Next at {time_depart}")
 
@@ -120,6 +124,9 @@ def updateRouteInfo(routes, old_frame=None):
         row_num += 1
     # End loop
 
+    ######
+    #   Update last-refresh time
+    ######
     curr_time = localtime()
     AM_or_PM = lambda t: "AM" if t < 12 else "PM"
     ttk.Label(info_frame, text=f"Updates every 1 min.", style="Small.nonBus.TLabel").grid(row=row_num)
