@@ -2,7 +2,8 @@
 
 import requests
 from time import localtime
-from tkinter import *
+import tkinter as tk
+import tkinter.ttk as ttk
 
 import json
 
@@ -16,7 +17,7 @@ def updateClock(lbl):
 
     AM_or_PM = lambda t: "AM" if t < 12 else "PM"
 
-    lbl.config(text=f"Current Time:\n{curr_time.tm_hour if curr_time.tm_hour is not 0 else 12}:{curr_time.tm_min if curr_time.tm_min > 9 else "0"+str(curr_time.tm_min)}:{curr_time.tm_sec if curr_time.tm_sec > 9 else "0"+str(curr_time.tm_sec)} {AM_or_PM(curr_time.tm_hour)}")
+    lbl.config(text=f"{curr_time.tm_hour if curr_time.tm_hour is not 0 else 12}:{curr_time.tm_min if curr_time.tm_min > 9 else "0"+str(curr_time.tm_min)}:{curr_time.tm_sec if curr_time.tm_sec > 9 else "0"+str(curr_time.tm_sec)} {AM_or_PM(curr_time.tm_hour)}")
     main.after(1000, updateClock, lbl)
 ###
 
@@ -29,7 +30,7 @@ def updateRouteInfo(routes, old_frame=None):
         old_frame.destroy()
 
     # Create new frame for the new info:
-    info_frame = Frame(main, height=main.winfo_height(), width=main.winfo_width())
+    info_frame = ttk.Frame(main, height=main.winfo_height(), width=main.winfo_width())
     info_frame.pack()
 
     row_num = 0  # Row number for grid organization
@@ -100,14 +101,29 @@ def updateRouteInfo(routes, old_frame=None):
 
         print(f"Route #{route_num} ({title} ) - Next at {time_depart}")
 
-        route_info_label = Label(info_frame, text=f"Route {route_num} - {title} \n Next Departure: {time_depart}")
-        route_info_label.grid(row=row_num)
+        bus_times_frame = ttk.Frame(info_frame, style="Bus.TFrame")
+
+        route_label = ttk.Label(bus_times_frame, text=f"Route {route_num}", style="Bus.TLabel")
+        route_label.grid(row=0, column=0)
+
+        # Place space between sets of data:
+        ttk.Label(bus_times_frame, text=" ", style="Bus.TLabel").grid(row=0, column=1, padx=150)
+
+        route_time = ttk.Label(bus_times_frame, text=f"{time_depart}", style="Bus.TLabel")
+        route_time.grid(row=0, column=4)
+
+        route_desc = ttk.Label(bus_times_frame, text=f"{title}", style="Small.Bus.TLabel")
+        route_desc.grid(row=1, column=0)
+
+        bus_times_frame.grid(row=row_num, pady=20)  # Add new frame w/route info
+
         row_num += 1
     # End loop
 
     curr_time = localtime()
     AM_or_PM = lambda t: "AM" if t < 12 else "PM"
-    Label(info_frame, text=f"Updates every 1 min.\nLast updated: {curr_time.tm_hour if curr_time.tm_hour is not 0 else 12}:{curr_time.tm_min if curr_time.tm_min > 9 else "0"+str(curr_time.tm_min)} {AM_or_PM(curr_time.tm_hour)}").grid(row=row_num)
+    ttk.Label(info_frame, text=f"Updates every 1 min.", style="Small.nonBus.TLabel").grid(row=row_num)
+    ttk.Label(info_frame, text=f"Last updated: {curr_time.tm_hour if curr_time.tm_hour is not 0 else 12}:{curr_time.tm_min if curr_time.tm_min > 9 else "0"+str(curr_time.tm_min)} {AM_or_PM(curr_time.tm_hour)}",  style="nonBus.TLabel").grid(row=row_num+1)
 
     main.after(60000, lambda: updateRouteInfo(routes=routes, old_frame=info_frame))
 ###
@@ -136,12 +152,29 @@ with open("api_key.txt") as f:
 #   Create GUI
 ######
 
-main = Tk()
+main = tk.Tk()
 main.title("Next Bus")
 main.minsize(900, 700)
+main_bg_color = "#9BC1CF"
+main.configure(bg=main_bg_color)
 
-clock = Label(main, text="")
-clock.pack()
+# Configure styles for later use:
+style = ttk.Style()
+
+busInfo_bg = "#012A36"
+
+style.configure(".", background=main_bg_color, justify="center")
+style.configure("TLabel", font="Helvetica, 16")
+style.configure("Bus.TFrame", background=busInfo_bg)
+style.configure("Bus.TLabel", font="Helvetica, 24", foreground="#fff", background=busInfo_bg, padding=4)
+style.configure("Small.Bus.TLabel", font="Helvetica, 16")
+
+style.configure("nonBus.TLabel", font="Helvetica 16")
+style.configure("Small.nonBus.TLabel", font="Helvetica 12")
+
+
+clock = ttk.Label(main, text="")
+clock.pack(pady=20)
 updateClock(clock)
 
 updateRouteInfo(routes)
