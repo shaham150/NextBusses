@@ -17,7 +17,7 @@ def updateClock(lbl):
 
     AM_or_PM = lambda t: "AM" if t < 12 else "PM"
 
-    lbl.config(text=f"{curr_time.tm_hour if curr_time.tm_hour is not 0 else 12}:{curr_time.tm_min if curr_time.tm_min > 9 else "0"+str(curr_time.tm_min)}:{curr_time.tm_sec if curr_time.tm_sec > 9 else "0"+str(curr_time.tm_sec)} {AM_or_PM(curr_time.tm_hour)}")
+    lbl.config(text=f"{curr_time.tm_hour if curr_time.tm_hour != 0 else 12}:{curr_time.tm_min if curr_time.tm_min > 9 else "0"+str(curr_time.tm_min)}:{curr_time.tm_sec if curr_time.tm_sec > 9 else "0"+str(curr_time.tm_sec)} {AM_or_PM(curr_time.tm_hour)}")
     main.after(1000, updateClock, lbl)
 ###
 
@@ -129,7 +129,7 @@ def updateRouteInfo(routes, old_frame=None):
     curr_time = localtime()
     AM_or_PM = lambda t: "AM" if t < 12 else "PM"
     ttk.Label(info_frame, text=f"Updates every 1 min.", style="Small.nonBus.TLabel").grid(row=row_num)
-    ttk.Label(info_frame, text=f"Last updated: {curr_time.tm_hour if curr_time.tm_hour is not 0 else 12}:{curr_time.tm_min if curr_time.tm_min > 9 else "0"+str(curr_time.tm_min)} {AM_or_PM(curr_time.tm_hour)}",  style="nonBus.TLabel").grid(row=row_num+1)
+    ttk.Label(info_frame, text=f"Last updated: {curr_time.tm_hour if curr_time.tm_hour != 0 else 12}:{curr_time.tm_min if curr_time.tm_min > 9 else "0"+str(curr_time.tm_min)} {AM_or_PM(curr_time.tm_hour)}",  style="nonBus.TLabel").grid(row=row_num+1)
 
     main.after(60000, lambda: updateRouteInfo(routes=routes, old_frame=info_frame))
 ###
@@ -162,7 +162,7 @@ main = tk.Tk()
 main.title("Next Bus")
 main.minsize(1000, 800)
 main.resizable(False, True)
-main_bg_color = "#9BC1CF"
+main_bg_color = "#CDE7F1"
 main.configure(bg=main_bg_color)
 
 # Configure styles for later use:
@@ -180,7 +180,7 @@ style.configure("nonBus.TLabel", font="Helvetica 16")
 style.configure("Small.nonBus.TLabel", font="Helvetica 12")
 
 
-clock = ttk.Label(main, text="")
+clock = ttk.Label(main, text="", font="Helvetica 24")
 clock.pack(pady=20)
 updateClock(clock)
 
