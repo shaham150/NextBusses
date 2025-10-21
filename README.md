@@ -2,11 +2,13 @@
 
 ### This app is meant as a privacy-minded alternative to Google Maps for finding when the bus will be next arriving at your stop.
 
-### Current Features:
-- (main branch) (Soon to be deprecated) Tkinter interface, Google-Maps API behind the scenes, app use requires personal Google-Maps-Routes API key and creation of a local file with individual bus-stop information.
-  - This version requires local download+setup, and will be retired soon in favor of an improved webapp version.
+### Current Features (Main Branch)
+- GUI made with Tkinter Python library, and bus data fetched using Google-Maps API; app use requires a personal Google-Maps-Routes API key and the creation of a local file with individual bus-stop information.
+  - The setup process for this version can quickly become cumbersome, and so this version will soon be retired in favor of a webapp version with expanded functionality.
 
-### Planned upcoming Features:
-- Move from using Google API to using GTFS data from *CT Transit* directly
-- Web interface for users to search for routes+stops
-- Functionality for pinning information about selected stops for the duration of the session
+### Planned Upcoming Features:
+- **Migrate-Google-to-GTFS** branch:
+  - Move from using Google API to using GTFS data from *CT Transit* directly
+  - Web interface for users to search for routes+stops
+- Other future updates:
+  - Functionality for pinning information about selected stops for the duration of the session
