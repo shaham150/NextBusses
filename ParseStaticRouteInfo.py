@@ -24,6 +24,15 @@ df_stopsInfo = pd.merge(df_stops_genInfo, df_stopTimes_genInfo, how="right", on=
 df_trip_to_stops = pd.merge(df_tripID_to_routeID, df_stopsInfo, how="right", on="trip_id")
 df_allInfo = pd.merge(df_routes_genInfo, df_trip_to_stops, how="right", on="route_id")
 
+
+###
+# Temporary fix for rows with odd timestamps (values of '24' or '25' for the hour)
+###
+# Replace: 24 == 12am, 25 == 1am
+df_allInfo = df_allInfo.replace({"arrival_time": r'^24:', "departure_time": r'^24:'}, {"arrival_time": '00:', "departure_time": '00:'}, regex=True)
+df_allInfo = df_allInfo.replace({"arrival_time": r'^25:', "departure_time": r'^25:'}, {"arrival_time": '01:', "departure_time": '01:'}, regex=True)
+
+
 output_file_path = "staticRouteInfo.csv"
 df_allInfo.to_csv(f"{output_file_path}", index=False)
 print(f"Completed, saved to {output_file_path}.")
