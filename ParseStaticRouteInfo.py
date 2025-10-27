@@ -8,21 +8,18 @@ import pandas as pd
 folder_prefix = "googlect_transit"
 
 # Grab pertinent info from routes.txt, trips.txt, stops.txt and stop_times.txt:
-df_routes_genInfo = pd.read_csv(f"{folder_prefix}/routes.txt")[["route_id", "route_short_name", "route_long_name"]]
+df_tripID_to_tripName = pd.read_csv(f"{folder_prefix}/trips.txt", dtype={"trip_id": "Int64", "trip_headsign": "str", "route_id": "Int64"})[["trip_id", "trip_headsign"]]
 
-df_tripID_to_routeID = pd.read_csv(f"{folder_prefix}/trips.txt")[["trip_id", "route_id"]]
+df_stopID_to_stopName = pd.read_csv(f"{folder_prefix}/stops.txt", dtype={"stop_id": "Int64", "stop_name": "str"})[["stop_id", "stop_name"]]
 
-df_stops_genInfo = pd.read_csv(f"{folder_prefix}/stops.txt")[["stop_id", "stop_name"]]
-
-df_stopTimes_genInfo = pd.read_csv(f"{folder_prefix}/stop_times.txt")[["trip_id", "stop_sequence", "stop_id", "arrival_time", "departure_time"]]
+df_stopTimes_genInfo = pd.read_csv(f"{folder_prefix}/stop_times.txt", dtype={"trip_id": "Int64", "stop_sequence": "Int64", "stop_id": "Int64", "arrival_time": "str", "departure_time": "str"})[["trip_id", "stop_sequence", "stop_id", "arrival_time", "departure_time"]]
 
 ###
 # Merge dataframes
 ###
 
-df_stopsInfo = pd.merge(df_stops_genInfo, df_stopTimes_genInfo, how="right", on="stop_id")
-df_trip_to_stops = pd.merge(df_tripID_to_routeID, df_stopsInfo, how="right", on="trip_id")
-df_allInfo = pd.merge(df_routes_genInfo, df_trip_to_stops, how="right", on="route_id")
+df_stopsInfo = pd.merge(df_stopID_to_stopName, df_stopTimes_genInfo, how="right", on="stop_id")
+df_allInfo = pd.merge(df_tripID_to_tripName, df_stopsInfo, how="right", on="trip_id")
 
 
 ###
@@ -31,7 +28,6 @@ df_allInfo = pd.merge(df_routes_genInfo, df_trip_to_stops, how="right", on="rout
 # Replace: 24 == 12am, 25 == 1am
 df_allInfo = df_allInfo.replace({"arrival_time": r'^24:', "departure_time": r'^24:'}, {"arrival_time": '00:', "departure_time": '00:'}, regex=True)
 df_allInfo = df_allInfo.replace({"arrival_time": r'^25:', "departure_time": r'^25:'}, {"arrival_time": '01:', "departure_time": '01:'}, regex=True)
-
 
 output_file_path = "staticRouteInfo.csv"
 df_allInfo.to_csv(f"{output_file_path}", index=False)
